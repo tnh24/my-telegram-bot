@@ -4,6 +4,7 @@ const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 const YOUTUBE_SUBSCRIBE_LINK = 'https://www.youtube.com/channel/your_channel_id?sub_confirmation=1';
 
 bot.start((ctx) => {
+  console.log('Received /start command');
   ctx.reply(`Welcome! Click [here](${YOUTUBE_SUBSCRIBE_LINK}) to subscribe to our YouTube channel.`, { parse_mode: 'Markdown' });
 });
 
@@ -17,12 +18,20 @@ bot.on('text', (ctx) => {
 });
 
 exports.handler = async (event) => {
+  console.log('Received event:', event);
   const body = JSON.parse(event.body);
 
-  bot.handleUpdate(body);
-
-  return {
-    statusCode: 200,
-    body: '',
-  };
+  try {
+    await bot.handleUpdate(body);
+    return {
+      statusCode: 200,
+      body: '',
+    };
+  } catch (error) {
+    console.error('Error handling update:', error);
+    return {
+      statusCode: 500,
+      body: 'Internal Server Error',
+    };
+  }
 };
